@@ -2,14 +2,8 @@ const express = require("express");
 
 const app = express();
 
-app.get("/", (request, response) => {
-  // retornando mensagem
-  // return response.send("Hello World");
-
-  //retornando json
-  return response.json({
-    message: "Hello World",
-  });
+app.get("/cursos", (request, response) => {
+  return response.json(["Curso 1", "Curso 2", "Curso 3"]);
 });
 
 //localhost:3333
