@@ -2,6 +2,12 @@ const { response } = require("express");
 const express = require("express");
 const { request } = require("http");
 
+/**
+ * Tipos de parametros
+ *
+ * route params => identificar um recurso para editar/deletar/buscar
+ */
+
 const app = express();
 
 app.get("/cursos", (request, response) => {
@@ -13,6 +19,9 @@ app.post("/cursos", (request, response) => {
 });
 
 app.put("/cursos/:id", (request, response) => {
+  const params = request.params;
+  console.log("param recebido pela rota", params);
+
   return response.json(["Curso 5", "Curso 2", "Curso 3", "Curso 4"]);
 });
 
