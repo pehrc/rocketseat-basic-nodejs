@@ -1,4 +1,3 @@
-const { response } = require("express");
 const express = require("express");
 const { v4: uuidv4 } = require("uuid");
 
@@ -6,31 +5,41 @@ const app = express();
 
 app.use(express.json());
 
-const customers = [];
+const clientes = [];
 
 //Middleware
-function verifyIfExistsAccountCPF(request, response, next) {
+function verificaSeExisteCPF(request, response, next) {
   const { cpf } = request.headers;
 
-  const customer = customers.find((customer) => customer.cpf === cpf);
+  const cliente = clientes.find((cliente) => cliente.cpf === cpf);
 
-  if (!customer) {
-    return response.status(400).json({ error: "CPF não existe" });
+  if (!cliente) {
+    return response.status(400).json({ error: "Cliente não cadastrado" });
   }
 
   //Repassando informação que esta sendo consumida dentro do middleware para outras rotas
-  request.customer = customer;
+  request.cliente = cliente;
 
   return next();
+}
+
+function verificaSaldo(extratoBancario) {
+  const balanco = extratoBancario.reduce((acumulador, operacao) => {
+    if (operacao.type === "credito") {
+      return acumulador + operacao.valor;
+    } else {
+      return acumulador - operacao.valor;
+    }
+  }, 0);
+
+  return balanco;
 }
 
 app.post("/conta", (request, response) => {
   const { cpf, nome } = request.body;
 
   // Busca e compara CPF
-  const customerAlreadyExists = customers.some(
-    (customer) => customer.cpf === cpf
-  );
+  const customerAlreadyExists = clientes.some((cliente) => cliente.cpf === cpf);
 
   if (customerAlreadyExists) {
     return response.status(400).json({ error: "CPF já existente" });
@@ -38,11 +47,11 @@ app.post("/conta", (request, response) => {
 
   const id = uuidv4();
 
-  customers.push({
+  clientes.push({
     cpf,
     nome,
     id,
-    statement: [],
+    extratoBancario: [],
   });
 
   return response.status(201).send();
@@ -58,33 +67,54 @@ app.post("/conta", (request, response) => {
      return response.status(400).json({ error: "CPF não existe !" });
    }
 
-   return response.json(customer.statement);
+   return response.json(customer.extratoBancario);
  }); */
 
 // CASO TODAS AS ROTAS A SEGUIR PRECISE PASSAR POR ESSE MIDDLEWARE, UTILIZAR O APP.USE()
-app.use(verifyIfExistsAccountCPF);
+app.use(verificaSeExisteCPF);
 
 //RECEBENDO CPF POR HEADERS
 
-app.get("/extrato", verifyIfExistsAccountCPF, (request, response) => {
-  const { customer } = request;
+app.get("/extrato", verificaSeExisteCPF, (request, response) => {
+  const { cliente } = request;
 
-  return response.json(customer.statement);
+  return response.json(cliente.extratoBancario);
 });
 
-app.post("/deposito", verifyIfExistsAccountCPF, (request, response) => {
-  const { customer } = request;
+app.post("/deposito", verificaSeExisteCPF, (request, response) => {
+  const { cliente } = request;
 
-  const { description, amount } = request.body;
+  const { descricao, valor } = request.body;
 
-  const statementOperation = {
-    description,
-    amount,
+  const extratoBancarioOperacao = {
+    descricao,
+    valor,
     created_at: new Date(),
     type: "credito",
   };
 
-  customer.statement.push(statementOperation);
+  cliente.extratoBancario.push(extratoBancarioOperacao);
+
+  return response.status(201).send();
+});
+
+app.post("/saque", verificaSeExisteCPF, (request, response) => {
+  const { cliente } = request;
+  const { valor } = request.body;
+
+  const balanco = verificaSaldo(cliente.extratoBancario);
+
+  if (balanco < valor) {
+    return response.status(400).json({ error: "Saldo insuficiente" });
+  }
+
+  const extratoBancarioOperacao = {
+    valor,
+    created_at: new Date(),
+    type: "debito",
+  };
+
+  cliente.extratoBancario.push(extratoBancarioOperacao);
 
   return response.status(201).send();
 });
