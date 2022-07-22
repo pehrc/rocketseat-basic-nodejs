@@ -133,4 +133,20 @@ app.get("/extrato/data", verificaSeExisteCPF, (request, response) => {
   return response.json(extrato);
 });
 
+// ALTERA NOME
+app.put("/conta", verificaSeExisteCPF, (request, response) => {
+  const { cliente } = request;
+  const { nome } = request.body;
+
+  cliente.nome = nome;
+
+  return response.status(201).send();
+});
+
+app.get("/conta", verificaSeExisteCPF, (request, response) => {
+  const { cliente } = request;
+
+  return response.json(cliente);
+});
+
 app.listen(3333);
