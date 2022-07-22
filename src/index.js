@@ -46,17 +46,20 @@ app.post("/conta", (request, response) => {
 });
 
 //RECEBENDO CPF POR PARAMS
-// app.get("/extrato/:cpf", (request, response) => {
-//   const { cpf } = request.params;
+/**  app.get("/extrato/:cpf", (request, response) => {
+   const { cpf } = request.params;
 
-//   const customer = customers.find((customer) => customer.cpf === cpf);
+   const customer = customers.find((customer) => customer.cpf === cpf);
 
-//   if (!customer) {
-//     return response.status(400).json({ error: "CPF não existe !" });
-//   }
+   if (!customer) {
+     return response.status(400).json({ error: "CPF não existe !" });
+   }
 
-//   return response.json(customer.statement);
-// });
+   return response.json(customer.statement);
+ }); */
+
+// CASO TODAS AS ROTAS A SEGUIR PRECISE PASSAR POR ESSE MIDDLEWARE, UTILIZAR O APP.USE()
+app.use(verifyIfExistsAccountCPF);
 
 //RECEBENDO CPF POR HEADERS
 
