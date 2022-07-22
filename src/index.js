@@ -119,4 +119,18 @@ app.post("/saque", verificaSeExisteCPF, (request, response) => {
   return response.status(201).send();
 });
 
+app.get("/extrato/data", verificaSeExisteCPF, (request, response) => {
+  const { cliente } = request;
+  const { date } = request.query;
+
+  const dateFormat = new Date(date + " 00:00");
+
+  const extrato = cliente.extratoBancario.filter(
+    (extrato) =>
+      extrato.created_at.toDateString() === new Date(dateFormat).toDateString()
+  );
+
+  return response.json(extrato);
+});
+
 app.listen(3333);
