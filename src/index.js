@@ -149,4 +149,21 @@ app.get("/conta", verificaSeExisteCPF, (request, response) => {
   return response.json(cliente);
 });
 
+app.delete("/conta", verificaSeExisteCPF, (request, response) => {
+  const { cliente } = request;
+
+  //splice
+  clientes.splice(cliente, 1);
+
+  return response.status(200).json(clientes);
+});
+
+app.get("/balanco", verificaSeExisteCPF, (request, response) => {
+  const { cliente } = request;
+
+  const balanco = verificaSaldo(cliente.extratoBancario);
+
+  return response.json(balanco);
+});
+
 app.listen(3333);
