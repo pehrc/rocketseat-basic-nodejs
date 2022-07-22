@@ -72,4 +72,21 @@ app.get("/extrato", verifyIfExistsAccountCPF, (request, response) => {
   return response.json(customer.statement);
 });
 
+app.post("/deposito", verifyIfExistsAccountCPF, (request, response) => {
+  const { customer } = request;
+
+  const { description, amount } = request.body;
+
+  const statementOperation = {
+    description,
+    amount,
+    created_at: new Date(),
+    type: "credito",
+  };
+
+  customer.statement.push(statementOperation);
+
+  return response.status(201).send();
+});
+
 app.listen(3333);
