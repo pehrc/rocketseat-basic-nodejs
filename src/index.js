@@ -60,7 +60,7 @@ app.post("/conta", (request, response) => {
 
 //RECEBENDO CPF POR HEADERS
 
-app.get("/extrato", (request, response) => {
+app.get("/extrato", verifyIfExistsAccountCPF, (request, response) => {
   const { cpf } = request.headers;
 
   const customer = customers.find((customer) => customer.cpf === cpf);
