@@ -18,6 +18,9 @@ function verifyIfExistsAccountCPF(request, response, next) {
     return response.status(400).json({ error: "CPF não existe" });
   }
 
+  //Repassando informação que esta sendo consumida dentro do middleware para outras rotas
+  request.customer = customer;
+
   return next();
 }
 
@@ -64,13 +67,7 @@ app.use(verifyIfExistsAccountCPF);
 //RECEBENDO CPF POR HEADERS
 
 app.get("/extrato", verifyIfExistsAccountCPF, (request, response) => {
-  const { cpf } = request.headers;
-
-  const customer = customers.find((customer) => customer.cpf === cpf);
-
-  if (!customer) {
-    return response.status(400).json({ error: "CPF não existe !" });
-  }
+  const { customer } = request;
 
   return response.json(customer.statement);
 });
