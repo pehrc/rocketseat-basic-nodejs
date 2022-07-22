@@ -8,6 +8,19 @@ app.use(express.json());
 
 const customers = [];
 
+//Middleware
+function verifyIfExistsAccountCPF(request, response, next) {
+  const { cpf } = request.headers;
+
+  const customer = customers.find((customer) => customer.cpf === cpf);
+
+  if (!customer) {
+    return response.status(400).json({ error: "CPF não existe" });
+  }
+
+  return next();
+}
+
 app.post("/conta", (request, response) => {
   const { cpf, nome } = request.body;
 
@@ -46,6 +59,7 @@ app.post("/conta", (request, response) => {
 // });
 
 //RECEBENDO CPF POR HEADERS
+
 app.get("/extrato", (request, response) => {
   const { cpf } = request.headers;
 
