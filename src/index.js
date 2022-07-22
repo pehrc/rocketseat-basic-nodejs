@@ -32,10 +32,28 @@ app.post("/conta", (request, response) => {
   return response.status(201).send();
 });
 
-app.get("/extrato/:cpf", (request, response) => {
-  const cpf = request.params;
+//RECEBENDO CPF POR PARAMS
+// app.get("/extrato/:cpf", (request, response) => {
+//   const { cpf } = request.params;
 
-  const customer = customer.find((customer) => customer.cpf === cpf);
+//   const customer = customers.find((customer) => customer.cpf === cpf);
+
+//   if (!customer) {
+//     return response.status(400).json({ error: "CPF não existe !" });
+//   }
+
+//   return response.json(customer.statement);
+// });
+
+//RECEBENDO CPF POR HEADERS
+app.get("/extrato", (request, response) => {
+  const { cpf } = request.headers;
+
+  const customer = customers.find((customer) => customer.cpf === cpf);
+
+  if (!customer) {
+    return response.status(400).json({ error: "CPF não existe !" });
+  }
 
   return response.json(customer.statement);
 });
